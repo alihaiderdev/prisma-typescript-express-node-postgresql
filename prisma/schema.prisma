@@ -1,0 +1,67 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Post {
+  id         Int        @id @default(autoincrement())
+  title      String     @db.VarChar(255)
+  content    String?
+  comments   Json?
+  views      Int        @default(0)
+  likes      Int        @default(0)
+  categories Category[]
+  published  Boolean    @default(false)
+  author     User       @relation(fields: [authorId], references: [id])
+  authorId   Int
+  createdAt  DateTime   @default(now())
+  updatedAt  DateTime   @updatedAt
+}
+
+model Category {
+  id    Int    @id @default(autoincrement())
+  name  String @unique
+  posts Post[]
+}
+
+model Profile {
+  id     Int     @id @default(autoincrement())
+  bio    String?
+  user   User    @relation(fields: [userId], references: [id])
+  userId Int     @unique
+}
+
+model User {
+  id           Int      @id @default(autoincrement()) // @map("_id") by using  @map("_id") we can set a different column name in DB
+  email        String   @unique
+  name         String?
+  profileViews Int      @default(0)
+  role         Role     @default(USER)
+  posts        Post[]
+  profile      Profile?
+
+  // @@map("user") // create a table with name user instead of User
+}
+
+enum Role {
+  USER
+  ADMIN
+}
+
+// @default
+
+// @id
+// @@id
+
+// @unique
+// @@unique  https://www.prisma.io/docs/concepts/components/prisma-schema/data-model#composite-type-unique-constraints
+
+// @map
+// @@map
